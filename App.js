@@ -1,25 +1,33 @@
 import React from 'react';
-import { Text, StyleSheet, SafeAreaView } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import LandingPage from '../CapstoneByLawApp/Screens/landingPage.js';
+import Login from '../CapstoneByLawApp/Screens/loginPage.js';
+import Signup from '../CapstoneByLawApp/Screens/signUpPage.js';
 
-const App = () => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Hello, World!</Text>
-    </SafeAreaView>
+const Stack = createStackNavigator();
+
+export default function App() {
+  return(
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="LandingPage">
+        
+        <Stack.Screen 
+          name="LandingPage" 
+          component={LandingPage} 
+          options={{ headerShown: false}} />
+
+        <Stack.Screen 
+          name="Login" 
+          component={Login} 
+          options={{ title: 'Log In' }} />
+
+        <Stack.Screen 
+          name="SignUp" 
+          component={Signup} 
+          options={{ title: 'Sign Up' }} />
+          
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-  },
-  text: {
-    fontSize: 24,
-    color: '#333',
-  },
-});
-
-export default App;
+}
