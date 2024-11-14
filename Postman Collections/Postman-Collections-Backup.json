@@ -39,6 +39,18 @@
 				"url": "http://localhost:5555/searchViolations"
 			},
 			"response": []
+		},
+		{
+			"name": "testSearchViolationWithMobile",
+			"id": "5435ef3d-faec-40a1-9094-11689476d1ac",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
 		}
 	]
 }
