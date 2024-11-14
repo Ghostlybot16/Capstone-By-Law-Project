@@ -96,3 +96,6 @@ android/app/build/
 android/app/src/main/res/drawable-*/*.png 
 android/.gradle/
 android/app/debug.keystore
+
+#Ignore nlp_env files(Python Environment)
+nlp_env/
