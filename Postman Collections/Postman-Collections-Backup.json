@@ -1,0 +1,44 @@
+{
+	"info": {
+		"_postman_id": "c5b451fa-ceee-44a4-bad6-23dcba269810",
+		"name": "Capstone-By-LawApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "testRootRoute",
+			"id": "e698d193-db01-4588-83db-2e971cd6c1b4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:5555"
+			},
+			"response": []
+		},
+		{
+			"name": "testSearchViolationsWithNLP",
+			"id": "2d01287f-7ff7-4b28-9f90-53be5786051c",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"keywords\": [\r\n        \"parking\",\r\n        \"noise\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:5555/searchViolations"
+			},
+			"response": []
+		}
+	]
+}
