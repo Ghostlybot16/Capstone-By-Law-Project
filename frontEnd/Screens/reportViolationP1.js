@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, ToastAndroid } from 'react-native';
 import axios from 'axios';
 import styles from '../Styles/reportViolationP1-Styles.js';
-import Button from '../Components/Button.js'; // Import button
+import Button from '../Components/ButtonPress.js'; // Import button
 
 export default function ReportViolationP1() {
     // State variables to hold the keywords input from the user & to store the processed result returned from backend

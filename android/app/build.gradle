@@ -84,11 +84,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-
-        // Supported ABI architectures 
-        ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-        }
     }
     signingConfigs {
         debug {
@@ -116,14 +111,6 @@ android {
         }
     }
 
-    // External Native Build - CMake Config 
-    externalNativeBuild {
-        cmake{
-            // Path to CMakeLists.txt file 
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.22.1"
-        }
-    }
 }
 
 dependencies {

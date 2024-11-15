@@ -96,3 +96,27 @@ android/app/build/
 android/app/src/main/res/drawable-*/*.png 
 android/.gradle/
 android/app/debug.keystore
+
+# Ignore Log and temp files 
+*.log
+*.tmp 
+*.temp
+temp/
+.tmp/
+.cache/
+.vscode/
+
+# Ignore Jest 
+jest-cache/
+jest-temp/
+
+#Ignore React Native files 
+ios/Pods/
+ios/build/
+android/app/build/
+android/app/src/main/res/drawable-*/*.png 
+android/.gradle/
+android/app/debug.keystore
+
+#Ignore nlp_env files(Python Environment)
+nlp_env/
