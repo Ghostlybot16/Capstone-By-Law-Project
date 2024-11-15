@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "testRootRoute",
+			"name": "runningNodeServerTest",
 			"id": "e698d193-db01-4588-83db-2e971cd6c1b4",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -41,24 +41,14 @@
 			"response": []
 		},
 		{
-			"name": "testSearchViolationWithMobile",
-			"id": "5435ef3d-faec-40a1-9094-11689476d1ac",
+			"name": "runningFlaskServerTest",
+			"id": "2af55f03-e8e6-4df5-b005-4aac82898e24",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"keywords\": [\"parking\", \"noise\"]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "http://10.0.0.248:5555/searchViolations"
+				"method": "GET",
+				"header": []
 			},
 			"response": []
 		}
