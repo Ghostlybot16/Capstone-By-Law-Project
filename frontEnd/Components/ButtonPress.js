@@ -1,32 +1,49 @@
+// import React from 'react';
+// import { View, Pressable, Text} from 'react-native';
+// // import Ionicons from 'react-native-vector-icons/ionicons'; // Import FontAwesome icons
+// import styles from '../Styles/button-Styles.js'; // Import styles js file
+
+// // Button function accepts label and theme as properties
+// export default function Button({ label, theme, onPressAction }) {
+//     // Check if the theme is "primary" to apply specific styles
+//   if (theme === 'primary') {
+//     return (
+//       <View style={styles.buttonContainer}>
+//         <Pressable style={styles.button} onPress={onPressAction}>
+//           <Text style={styles.buttonLabel}>{label}</Text>
+//         </Pressable>
+//       </View>
+//     );
+//   }
+
+//   // Display a default button if theme is not "primary"
+//   return (
+//     <View style={styles.buttonContainer}>
+//       <Pressable style={styles.button} onPress={onPressAction}>
+//         <Text style={styles.buttonLabel}>{label}</Text>
+//       </Pressable>
+//     </View>
+//   );
+// }
+
 import React from 'react';
-import { View, Pressable, Text, ToastAndroid } from 'react-native';
-// import Ionicons from 'react-native-vector-icons/ionicons'; // Import FontAwesome icons
-import styles from '../Styles/button-Styles.js'; // Import styles js file
+import { View, Pressable, Text } from 'react-native';
+import styles from '../Styles/button-Styles.js';
 
-// Button function accepts label and theme as properties
-export default function Button({ label, theme }) {
-    // Function handle the button press. It shows a toast message
-    const handlePress = () => {
-        ToastAndroid.show('You pressed a button.', ToastAndroid.SHORT); // Displays a toast message on button press
-  };
+export default function Button({ label, theme, onPress }) {
+    console.log('Button rendered with label:', label); // Debug log to confirm rendering
 
-    // Check if the theme is "primary" to apply specific styles
-    if (theme === 'primary') {
-      return (
-          <View style={styles.buttonContainer}>
-              <Pressable style={styles.button} onPress={handlePress}>
-                  <Text style={styles.buttonLabel}>{label}</Text>
-              </Pressable>
-          </View>
-      );
-  }
-
-  // Display a default button if theme is not "primary"
-  return (
-    <View style={styles.buttonContainer}>
-        <Pressable style={styles.button} onPress={handlePress}>
-          <Text style={styles.buttonLabel}>{label}</Text>
-        </Pressable>
-      </View>
-  );
+    return (
+        <View style={styles.buttonContainer}>
+            <Pressable
+                style={theme === 'primary' ? styles.button : styles.defaultButton}
+                onPress={() => {
+                    console.log('Pressable clicked'); // Debug log to confirm Pressable was clicked
+                    onPress(); // Invoke the onPress function
+                }}
+            >
+                <Text style={styles.buttonLabel}>{label}</Text>
+            </Pressable>
+        </View>
+    );
 }

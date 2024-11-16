@@ -11,12 +11,19 @@ export default function ReportViolationP1() {
 
     // Function to handle the search when the button is pressed
     const handleSearch = async () => {
+        console.log('Button pressed, initiating search...');
+        ToastAndroid.show('Initiating search...', ToastAndroid.SHORT); // Show feedback when button is pressed
+
         try {
             // Send a POST request to the backend with keywords array
-            const response = await axios.post('http://localhost:5555/searchViolations', {
+            const response = await axios.post('http://10.0.0.248:5555/searchViolations', {
                 keywords: keywords.split(',').map(word => word.trim()), // Convert comma-separated string to array
             });
+            console.log('Response received:', response.data);
+
+            // Store the result from the backend
             setResultFromBackend(response.data);
+            ToastAndroid.show('Search Complete!', ToastAndroid.SHORT); // Feedback upon success
         } catch (error) {
             console.error('Error fetching data:', error);
             // Show a toast message if there's an error processing the request
@@ -42,8 +49,12 @@ export default function ReportViolationP1() {
             {/* Display the results if available */}
             {resultFromBackend && (
                 <View style={styles.resultContainer}>
-                    <Text style={styles.resultText}>Original Keywords: {resultFromBackend.original_keywords.join(', ')}</Text>
-                    <Text style={styles.resultText}>Processed Keywords: {resultFromBackend.processed_keywords.join(', ')}</Text>
+                    <Text style={styles.resultText}>
+                        Original Keywords: {resultFromBackend.original_keywords.join(', ')}
+                    </Text>
+                    <Text style={styles.resultText}>
+                        Processed Keywords: {resultFromBackend.processed_keywords.join(', ')}
+                    </Text>
                 </View>
             )}
         </View>
