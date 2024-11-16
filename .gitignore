@@ -118,5 +118,8 @@ android/app/src/main/res/drawable-*/*.png
 android/.gradle/
 android/app/debug.keystore
 
-#Ignore nlp_env files(Python Environment)
-backEnd/
+#Ignore nlp_venv files(Python Environment)
+backEnd/nlp_venv
+
+#Ignore mongo_data (mongod) data 
+backEnd/mongo_data/
