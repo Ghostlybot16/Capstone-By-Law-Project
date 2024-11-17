@@ -1,7 +1,7 @@
 // Import Express, CORS and Axios
 const express = require('express');
 const cors = require('cors');
-//const axios = require('axios');
+const axios = require('axios');
 
 // Initialize the express app
 const app = express();
@@ -23,18 +23,19 @@ app.post('/searchViolations', async (request, response) => {
     const { keywords } = request.body;
 
     try {
-        // Temporarily skip actual NLP processing and return a placeholder response
-        const processedKeywords = keywords.map(keyword => `processed_${keyword.trim()}`);
+        // Connection to Flask server
+        // localhost value needs to be changed to correct IPv4 value when testing
+        const serviceUrl = "http://10.0.0.248:5000/processJSON";
 
-        // Send JSON response back to the client with the original and placeholder processed keywords
-        response.json({
-            message: 'Processed keywords received', // confirmation message
-            original_keywords: keywords, // original keywords sent by the user
-            processed_keywords: processedKeywords, // placeholder processed keywords
-        });
+        const serviceResponse = await axios.post(serviceUrl, { keywords });
+
+        console.log('Service response:', serviceResponse.data);
+
+        // Send response back to the client 
+        response.json(serviceResponse.data);
     } catch (error) {
         // Error message for when communicating with NLP service fails
-        console.error('Error processing keywords:', error);
+        console.error('Error communicating with JSON service', error);
 
         // Status 500 error response sent to the client with error message
         response.status(500).json({ error: 'Failed to process keywords' });
@@ -43,5 +44,7 @@ app.post('/searchViolations', async (request, response) => {
 
 // Start the server
 app.listen(PORT, '0.0.0.0', () => {
+    
+    // localhost value needs to be changed to correct IPv4 value when testing
     console.log(`Server is running on http://10.0.0.248/${PORT}`);
 });

@@ -119,4 +119,7 @@ android/.gradle/
 android/app/debug.keystore
 
 #Ignore nlp_env files(Python Environment)
-backEnd/
+backEnd/nlp_venv/
+
+# Ignore the pycache files 
+backEnd/services/__pycache__/
