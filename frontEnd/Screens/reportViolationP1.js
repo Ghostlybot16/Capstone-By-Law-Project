@@ -4,7 +4,7 @@ import axios from 'axios';
 import styles from '../Styles/reportViolationP1-Styles.js';
 import Button from '../Components/ButtonPress.js'; // Import button
 
-export default function ReportViolationP1() {
+export default function ReportViolationP1({ onNext }) {
     // State variables to hold the keywords input from the user & to store the processed result returned from backend
     const [keywords, setKeywords] = useState('');
     const [resultFromBackend, setResultFromBackend] = useState(null);
@@ -69,6 +69,7 @@ export default function ReportViolationP1() {
                     {Object.keys(resultFromBackend).map((category, index) => (
                         <View key={index} style={styles.categoryContainer}>
                             <Text style={styles.categoryTitle}>{category}</Text>
+
                             {resultFromBackend[category].length > 0 ? (
                                 resultFromBackend[category].map((item, idx) => (
                                     <View key={idx} style={styles.itemContainer}>
@@ -88,6 +89,13 @@ export default function ReportViolationP1() {
                     <Text style={styles.resultText}>No results yet. Enter keywords and search.</Text>
                 )
             )}
+
+            <Button
+                label="Next"
+                theme="primary"
+                //onPress={() => navigation.navigate('ReportViolationP2')}
+                onPress={onNext}
+            />
         </ScrollView>
     );
 
