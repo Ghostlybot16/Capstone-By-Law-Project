@@ -1,9 +1,15 @@
 import React from 'react';
-import { View, Text, TextInput, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView, ToastAndroid } from 'react-native';
 import styles from '../Styles/reportViolationP2-Styles.js';
 import Button from '../Components/ButtonPress.js';
 
 export default function ReportViolationP2({ onBack }) {
+  const handleSubmit = () => {
+    // Show a toast message saying "Report Submitted" when submit button is pressed
+    ToastAndroid.show('Report Submitted', ToastAndroid.SHORT);
+    console.log('Report Submitted'); // Log message for debugging
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
 
@@ -49,7 +55,7 @@ export default function ReportViolationP2({ onBack }) {
         <Button
           label="Submit"
           theme="primary"
-          onPress={() => console.log('Submit Report')}
+          onPress={handleSubmit}
         />
       </View>
     </ScrollView>

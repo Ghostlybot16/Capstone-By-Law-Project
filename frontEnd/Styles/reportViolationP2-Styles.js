@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    color: '#000',
   },
   uploadContainer: {
     flexDirection: 'row',
