@@ -20,7 +20,7 @@ def process_json():
         bylaws_data = load_json("bylaws.json")
         
         # Search by keywords
-        categorized_results = search_by_keywords(bylaws_data, keywords, max_results=5, truncate_length=150)
+        categorized_results = search_by_keywords(bylaws_data, keywords, max_results=5)
 
         return jsonify(categorized_results)
     except Exception as e:
