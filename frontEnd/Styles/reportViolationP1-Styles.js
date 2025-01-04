@@ -29,6 +29,15 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         marginVertical: 10,
     },
+    scrollContainer: {
+        maxHeight: 500,
+    },
+    boldText: {
+        fontWeight: 'bold',
+    },
+    itemContainer: {
+        marginBottom: 15,
+    },
 });
 
 export default styles;

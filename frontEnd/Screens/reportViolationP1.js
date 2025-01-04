@@ -12,6 +12,10 @@ export default function ReportViolationP1({ onNext }) {
 
     // Function to handle the search when the button is pressed
     const handleSearch = async () => {
+        if(!keywords.trim()) {
+            ToastAndroid.show('Please enter keywords to search.', ToastAndroid.SHORT);
+            return;
+        }
         console.log('Button pressed, initiating search...');
         ToastAndroid.show('Initiating search...', ToastAndroid.SHORT); // Show feedback when button is pressed
 
@@ -64,26 +68,37 @@ export default function ReportViolationP1({ onNext }) {
             )}
 
             {resultFromBackend ? (
-                <View style={styles.resultContainer}>
-                    {/* Iterate over the keys of the resultFromBackend object */}
-                    {Object.keys(resultFromBackend).map((category, index) => (
-                        <View key={index} style={styles.categoryContainer}>
-                            <Text style={styles.categoryTitle}>{category}</Text>
+                <ScrollView style = {styles.scrollContainer}>
+                    <View style={styles.resultContainer}>
+                        {/* Iterate over the keys of the resultFromBackend object */}
+                        {Object.keys(resultFromBackend).map((category, index) => (
+                            <View key={index} style={styles.categoryContainer}>
+                                <Text style={styles.categoryTitle}>{category}</Text>
 
-                            {resultFromBackend[category].length > 0 ? (
-                                resultFromBackend[category].map((item, idx) => (
-                                    <View key={idx} style={styles.itemContainer}>
-                                        <Text style={styles.itemText}>Article: {item.article}</Text>
-                                        <Text style={styles.itemText}>Section: {item.section}</Text>
-                                        <Text style={styles.itemText}>Text: {item.text}</Text>
-                                    </View>
-                                ))
-                            ) : (
-                                <Text style={styles.itemText}>No data available in this category.</Text>
-                            )}
-                        </View>
-                    ))}
-                </View>
+                                {resultFromBackend[category].length > 0 ? (
+                                    resultFromBackend[category].map((item, idx) => (
+                                        <View key={idx} style={styles.itemContainer}>
+                                            <Text style={styles.itemText}>
+                                                <Text style={styles.boldText}>Article:</Text> {item.article}
+                                            </Text>
+
+                                            <Text style={styles.itemText}>
+                                                <Text style={styles.boldText}>Section:</Text> {item.section}
+                                            </Text>
+
+                                            <Text style={styles.itemText}>
+                                                <Text style={styles.boldText}>Text:</Text> {item.text}
+                                            </Text>
+
+                                        </View>
+                                    ))
+                                ) : (
+                                    <Text style={styles.itemText}>No data available in this category.</Text>
+                                )}
+                            </View>
+                        ))}
+                    </View>
+                </ScrollView>
             ) : (
                 !loading && (
                     <Text style={styles.resultText}>No results yet. Enter keywords and search.</Text>
