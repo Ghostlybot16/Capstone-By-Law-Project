@@ -4,7 +4,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 const OfficerProfiles = () => {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Officer Profiles</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Officer Profiles</Text>
+      </View>
 
       {/* Officer List */}
       <View style={styles.card}>
@@ -50,21 +53,26 @@ const OfficerProfiles = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f4f4f4',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  header: {
+    backgroundColor: '#0047ab', // Dark blue for a formal header
+    paddingVertical: 20,
+    alignItems: 'center',
     marginBottom: 20,
-    color: '#333',
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -73,16 +81,16 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    color: '#0047ab',
     marginBottom: 12,
-    color: '#007bff',
   },
   profileItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#e0e0e0',
   },
   profileImage: {
     width: 50,
@@ -95,7 +103,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 'bold',
     color: '#333',
   },
   profileRole: {
@@ -104,9 +112,10 @@ const styles = StyleSheet.create({
   },
   viewMore: {
     fontSize: 14,
-    color: '#007bff',
+    color: '#0047ab',
     textAlign: 'right',
     marginTop: 10,
+    textDecorationLine: 'underline',
   },
 });
 

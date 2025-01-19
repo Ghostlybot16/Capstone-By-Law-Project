@@ -1,9 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from './firebaseConfig'; // Firestore configuration
 
 const Dashboard = () => {
   const navigation = useNavigation();
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch reports from Firestore
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'incidents'));
+        const fetchedReports = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log('Fetched Reports:', fetchedReports); // Log the fetched data
+        setReports(fetchedReports);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  // Filter reports
+  const newReports = reports.filter(
+    (report) => report.Status?.trim().toLowerCase() === 'new'
+  );
+  const inProgressReports = reports.filter(
+    (report) => report.Status?.trim().toLowerCase() === 'inprogress'
+  );
 
   const handleViewReport = (reportId) => {
     navigation.navigate('ReportDetails', { reportId });
@@ -13,54 +46,86 @@ const Dashboard = () => {
     navigation.navigate('IssueTicket');
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Municipality Dashboard</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Municipality Dashboard</Text>
+      </View>
 
-      {/* Summary Section */}
+      {/* Overview Section */}
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Overview</Text>
-        <View style={styles.summaryRow}>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>20</Text>
-            <Text style={styles.summaryLabel}>Active Reports</Text>
+        <View style={styles.summaryContainer}>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryValue}>{newReports.length}</Text>
+            <Text style={styles.summaryLabel}>New Reports</Text>
           </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>150</Text>
-            <Text style={styles.summaryLabel}>Resolved Cases</Text>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryValue}>{inProgressReports.length}</Text>
+            <Text style={styles.summaryLabel}>In-Progress Reports</Text>
           </View>
         </View>
       </View>
 
-      {/* Recent Reports */}
+      {/* In-Progress Reports */}
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Recent Reports</Text>
-        <TouchableOpacity style={styles.reportItem}>
-          <Text style={styles.reportTitle}>Illegal Parking</Text>
-          <Text style={styles.reportDetails}>Reported: Jan 3, 2025</Text>
-          <TouchableOpacity
-            style={styles.viewButton}
-            onPress={() => handleViewReport(1)}
-          >
-            <Text style={styles.buttonText}>View</Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.reportItem}>
-          <Text style={styles.reportTitle}>Noise Complaint</Text>
-          <Text style={styles.reportDetails}>Reported: Jan 2, 2025</Text>
-          <TouchableOpacity
-            style={styles.viewButton}
-            onPress={() => handleViewReport(2)}
-          >
-            <Text style={styles.buttonText}>View</Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
+        <Text style={styles.sectionTitle}>In-Progress Reports</Text>
+        {inProgressReports.map((report) => (
+          <View key={report.id} style={styles.reportItem}>
+            <View style={styles.reportContent}>
+              <Text style={styles.reportTitle}>
+                {report.Violation_Type?.trim() || 'No Title Available'}
+              </Text>
+              <Text style={styles.reportDetails}>
+                Reported: {new Date(report.reported_date.seconds * 1000).toLocaleDateString()}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.viewButton}
+              onPress={() => handleViewReport(report.id)}
+            >
+              <Text style={styles.buttonText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
       </View>
 
-      {/* Issue Ticket Button */}
+      {/* New Reports */}
       <View style={styles.card}>
+        <Text style={styles.sectionTitle}>New Reports</Text>
+        {newReports.map((report) => (
+          <View key={report.id} style={styles.reportItem}>
+            <View style={styles.reportContent}>
+              <Text style={styles.reportTitle}>
+                {report.Violation_Type?.trim() || 'No Title Available'}
+              </Text>
+              <Text style={styles.reportDetails}>
+                Reported: {new Date(report.reported_date.seconds * 1000).toLocaleDateString()}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.viewButton}
+              onPress={() => handleViewReport(report.id)}
+            >
+              <Text style={styles.buttonText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+
+      {/* Issue Ticket Section */}
+      <View style={styles.issueCard}>
         <TouchableOpacity style={styles.issueButton} onPress={handleIssueTicket}>
-          <Text style={styles.buttonText}>Issue a Ticket</Text>
+          <Text style={styles.issueButtonText}>Issue a Ticket</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -70,21 +135,26 @@ const Dashboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f4f4f4',
   },
-  title: {
-    fontSize: 28,
+  header: {
+    backgroundColor: '#0047ab',
+    paddingVertical: 20,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#333',
     textAlign: 'center',
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -93,37 +163,46 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    color: '#0047ab',
     marginBottom: 12,
-    color: '#007bff',
   },
-  summaryRow: {
+  summaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
   },
-  summaryItem: {
+  summaryCard: {
+    backgroundColor: '#eaf3fc',
+    borderRadius: 8,
+    padding: 16,
     alignItems: 'center',
     flex: 1,
+    marginHorizontal: 8,
   },
   summaryValue: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#007bff',
+    color: '#0047ab',
   },
   summaryLabel: {
     fontSize: 14,
     color: '#666',
-    marginTop: 4,
+    marginTop: 8,
   },
   reportItem: {
-    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#e0e0e0',
+  },
+  reportContent: {
+    flex: 1,
   },
   reportTitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 'bold',
     color: '#333',
   },
   reportDetails: {
@@ -131,31 +210,38 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   viewButton: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: '#007bff',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#0047ab',
     borderRadius: 5,
-    alignItems: 'center',
-  },
-  issueButton: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: '#4caf50',
-    borderRadius: 5,
-    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 14,
   },
-  performerItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
+  issueCard: {
+    marginHorizontal: 16,
+    marginBottom: 20,
+    alignItems: 'center',
   },
-  performanceScore: {
-    fontWeight: '600',
-    color: '#555',
+  issueButton: {
+    backgroundColor: '#4caf50',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '100%',
+  },
+  issueButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

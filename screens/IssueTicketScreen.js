@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import * as Print from 'expo-print';
+import { shareAsync } from 'expo-sharing';
+import JsBarcode from 'jsbarcode';
+import { Canvas } from 'react-native-canvas';
+
 
 const IssueTicketScreen = () => {
   const [form, setForm] = useState({
@@ -14,7 +20,41 @@ const IssueTicketScreen = () => {
     setForm({ ...form, [name]: value });
   };
 
-  const handleSubmit = () => {
+  const generateTicketNumber = () => {
+    return Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+  };
+
+  
+const generateBarcode = async (ticketNumber) => {
+  const canvas = new Canvas();
+  JsBarcode(canvas, ticketNumber, {
+    format: 'CODE128',
+    width: 2,
+    height: 100,
+    displayValue: true,
+  });
+
+  const barcodeData = await canvas.toDataURL(); // Get base64 image data
+  return barcodeData;
+};
+
+  const savePDF = async (htmlContent, ticketNumber) => {
+    try {
+      const { uri } = await Print.printToFileAsync({
+        html: htmlContent,
+        width: 612,
+        height: 792,
+      });
+      const newUri = `${FileSystem.documentDirectory}ticket_${ticketNumber}.pdf`;
+      await FileSystem.moveAsync({ from: uri, to: newUri });
+      await shareAsync(newUri);
+      Alert.alert('Success', `Ticket saved as PDF!`);
+    } catch (error) {
+      Alert.alert('Error', `Failed to save ticket: ${error.message}`);
+    }
+  };
+
+  const handleSubmit = async () => {
     if (
       !form.officerName ||
       !form.citizenName ||
@@ -26,10 +66,79 @@ const IssueTicketScreen = () => {
       return;
     }
 
-    Alert.alert(
-      'Ticket Generated',
-      `Ticket Issued Successfully!\n\nOfficer: ${form.officerName}\nCitizen: ${form.citizenName}\nViolation: ${form.violationType}\nLocation: ${form.violationLocation}\nFine: $${form.fineAmount}`
-    );
+    const ticketNumber = generateTicketNumber();
+    const barcodeImage = generateBarcode(ticketNumber);
+
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            .ticket {
+              width: 100%;
+              max-width: 400px;
+              margin: 0 auto;
+              padding: 20px;
+              border: 2px solid #000;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+            }
+            .ticket-number {
+              font-size: 18px;
+              font-weight: bold;
+              text-align: center;
+              color: red;
+            }
+            .field {
+              margin: 10px 0;
+            }
+            .label {
+              font-weight: bold;
+            }
+            .barcode {
+              text-align: center;
+              margin: 20px 0;
+            }
+            .fine-amount {
+              font-size: 20px;
+              color: red;
+              text-align: center;
+              margin: 20px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="ticket">
+            <div class="header">
+              <h1>Traffic Violation Ticket</h1>
+            </div>
+            <div class="ticket-number">Ticket #${ticketNumber}</div>
+            <div class="field">
+              <span class="label">Officer:</span> ${form.officerName}
+            </div>
+            <div class="field">
+              <span class="label">Citizen:</span> ${form.citizenName}
+            </div>
+            <div class="field">
+              <span class="label">Violation:</span> ${form.violationType}
+            </div>
+            <div class="field">
+              <span class="label">Location:</span> ${form.violationLocation}
+            </div>
+            <div class="fine-amount">
+              Fine Amount: $${form.fineAmount}
+            </div>
+            <div class="barcode">
+              <img src="${barcodeImage}" alt="Ticket Barcode" />
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    await savePDF(htmlContent, ticketNumber);
 
     setForm({
       officerName: '',
