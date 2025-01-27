@@ -1,6 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Permission for accessing the internet and external media files -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--  Permission for accessing media files on Android 10 and below -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    
+    <!-- Permission to allow user to access their camera to take images/videos -->
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
       android:name=".MainApplication"

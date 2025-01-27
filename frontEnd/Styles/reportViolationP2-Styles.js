@@ -87,6 +87,45 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f9f9f9',
   },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  uploadedImage: {
+    width: 100,
+    height: 100,
+    marginRight: 10,
+    borderRadius: 8,
+  },
+  imageContainer: {
+    position: 'relative',
+    marginRight: 10,
+  },
+  removeButtonContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 4,
+    backgroundColor: 'rgba(187, 184, 184, 0.5)',
+    borderRadius: 15,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: 'rgba(254, 0, 0, 0.5)',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  singleLocationButton: {
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  mediaPreviewContainer: {
+    marginVertical: 20,
+  },
 });
 
 export default styles;
