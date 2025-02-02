@@ -4,6 +4,7 @@ import { PermissionsAndroid, Platform } from 'react-native';
 const PERMISSIONS = {
     READ_EXTERNAL_STORAGE: PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
     CAMERA: PermissionsAndroid.PERMISSIONS.CAMERA,
+    ACCESS_FINE_LOCATION: PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
 };
 
 const MESSAGES = {
@@ -14,6 +15,10 @@ const MESSAGES = {
     CAMERA: {
         title: 'Camera Access Required',
         message: 'We need access to your camera to take photos or videos.',
+    },
+    ACCESS_FINE_LOCATION: {
+        title: 'Location Access Required',
+        message: 'We need access to your location to add it to your report.',
     },
 };
 
@@ -65,6 +70,32 @@ export const requestCameraPermission = async () => {
         return granted === PermissionsAndroid.RESULTS.GRANTED;
     } catch (err) {
         console.warn('Camera Permission Error:', err);
+        return false;
+    }
+};
+
+// Request Location Permission
+export const requestLocationPermission = async () => {
+    if (Platform.OS !== 'android') {
+        return true; 
+    }
+
+    try {
+        const granted = await PermissionsAndroid.request(
+            PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+                title: MESSAGES.ACCESS_FINE_LOCATION.title,
+                message: MESSAGES.ACCESS_FINE_LOCATION.message,
+                buttonNeutral: 'Ask me Later',
+                buttonNegative: 'Cancel',
+                buttonPositive: 'OK',
+            }
+        );
+
+        console.log('Location Permission Granted:', granted === PermissionsAndroid.RESULTS.GRANTED);
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+        console.warn('Location Permission Error: ', err);
         return false;
     }
 };

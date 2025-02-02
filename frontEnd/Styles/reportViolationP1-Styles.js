@@ -38,6 +38,9 @@ const styles = StyleSheet.create({
     itemContainer: {
         marginBottom: 15,
     },
+    loadingIndicator: {
+        marginVertical: 20,
+    },
 });
 
 export default styles;

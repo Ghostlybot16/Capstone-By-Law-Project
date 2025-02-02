@@ -1,11 +1,12 @@
-import React, { useState }from 'react';
-import { View, Text, TextInput, ScrollView, ToastAndroid, Image, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect }from 'react';
+import { View, Text, TextInput, ScrollView, ToastAndroid, Image, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import { requestGalleryPermission, requestCameraPermission } from '../utils/appPermissions.js';
+import Geolocation from '@react-native-community/geolocation';
+import { requestGalleryPermission, requestCameraPermission, requestLocationPermission } from '../utils/appPermissions.js';
 import styles from '../Styles/reportViolationP2-Styles.js';
 import Button from '../Components/ButtonPress.js';
 
-export default function ReportViolationP2({ onBack }) {
+export default function ReportViolationP2({ navigation }) {
 
   // Declare a state variable 'mediaFiles' to store the list of uploaded images or videos
   // 'setMediaFiles' is the function used to update the state
@@ -68,30 +69,6 @@ export default function ReportViolationP2({ onBack }) {
     } catch (err) {
       console.log('Error or User Cancelled: ', err);
     }
-
-    // const cameraOptions = {
-    //   mediaType: 'mixed', // Allow both image and video capture
-    //   cameraType: 'back', // Use the back camera by default
-    //   saveToPhotos: true, // Save captured media to the photos app
-    // };
-
-    // launchCamera(cameraOptions, (response) => {
-    //   if (response.didCancel) {
-    //     console.log('User cancelled camera');
-    //   } else if (response.errorCode) {
-    //     console.log('Camera Error: ', response.errorMessage);
-    //   } else if (response.assets) {
-    //     // Process captured media
-    //     const media = response.assets[0];
-    //     const formattedFile = {
-    //       uri: media.uri,
-    //       type: media.type,
-    //       name: media.fileName || `media-${Date.now()}`,
-    //     };
-    //     setMediaFiles((prevFiles) => [...prevFiles, formattedFile]);
-    //   }
-    // });
-
   };
 
   // Remove a selected image
@@ -99,9 +76,85 @@ export default function ReportViolationP2({ onBack }) {
     setMediaFiles((prevFiles) => prevFiles.filter(file => file.uri !== uri));
   };
 
+  const [location, setLocation] = useState({}); // State for location data
+  const [manualLocation, setManualLocation] = useState(false); // State to toggle manual location entry
+  const [manualLocationData, setManualLocationData] = useState({
+    address: '',
+    intersection: '',
+    postalCode: '',
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (navigation.getState()?.routes[navigation.getState().index]?.params?.location) {
+        setLocation(navigation.getState().routes[navigation.getState().index].params.location);
+        setManualLocation(false); // Disable manual location mode if a location is passed through GPS
+      }
+    });
+      return unsubscribe;
+  }, [navigation]);
+
+  // Function to handle location fetching
+  const handleAddLocation = async () => {
+    setLoading(true); // show loading indicator
+    const hasPermission = await requestLocationPermission();
+    if (!hasPermission) {
+      ToastAndroid.show('Location Permission Denied', ToastAndroid.SHORT);
+      setManualLocation(true); // Enable manual location entry if permission denied
+      setLoading(false); // Hide loading indicator
+      return;
+    }
+
+    // Fetch GPS location
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({
+          latitude: latitude.toFixed(6), // Limit accuracy for better readability
+          longitude: longitude.toFixed(6),
+        });
+        ToastAndroid.show('Location Added Successfully.', ToastAndroid.SHORT);
+        setManualLocation(false); // No need for manual location entry if location fetch is successful
+        setLoading(false); // Hide loading indicator
+      },
+
+      // Error case
+      (error) => {
+        console.error('Error fetching location:', error);
+        ToastAndroid.show('Unable to fetch location data. Please enter manually.', ToastAndroid.SHORT);
+        setManualLocation(true); // Enabled for manual entry upon error
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, // Enable high accuracy mode
+        timeout: 20000, // 20 seconds timeout
+        maximumAge: 0,
+      }
+    );
+  };
+
+  const handleManualLocationSubmit = () => {
+    if (!manualLocationData.address.trim() || !manualLocationData.postalCode.trim() || !manualLocationData.intersection.trim()) {
+      ToastAndroid.show('All fields are required for manual location entry.', ToastAndroid.SHORT);
+      return;
+    }
+    setLocation({ ...manualLocationData });
+    ToastAndroid.show('Manual Location Address Successfully.', ToastAndroid.SHORT);
+    setManualLocation(false); // Exit manual location mode after submission
+  };
+
   const handleSubmit = () => {
+
+    // Check if atleast one media file is uploaded
     if (mediaFiles.length === 0) {
       ToastAndroid.show('Please uploaded atleast one media file before submitting.', ToastAndroid.SHORT);
+      return;
+    }
+
+    // Check if location information is entered
+    if(!location.latitude && !location.longitude && !manualLocationData.address) {
+      ToastAndroid.show('Location details are required before submitting.', ToastAndroid.SHORT);
       return;
     }
 
@@ -142,7 +195,8 @@ export default function ReportViolationP2({ onBack }) {
         // Display uploaded images,  Use FlatList to render the list of uploaded images or videos
         <FlatList
           data={mediaFiles}
-          keyExtractor={(_, index) => index.toString()}
+          // keyExtractor={(_, index) => index.toString()}
+          keyExtractor={(item) => item.uri}
           renderItem={({ item }) => (
 
             <View style={styles.imageContainer}>
@@ -181,13 +235,56 @@ export default function ReportViolationP2({ onBack }) {
         <Button
           label="Add Location"
           theme="primary"
-          onPress={() => console.log('Add Location')}
+          onPress={handleAddLocation}
         />
-      <Button
-          label="Back"
-          theme="primary"
-          onPress={onBack}
-        />
+
+        {/* Loading indicator */}
+        {loading && (
+          <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
+        )}
+
+        {manualLocation && (
+          <View>
+
+            <Text style={styles.label}>Enter Location Manually</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Address"
+              value={manualLocationData.address}
+              onChangeText={(text) => setManualLocationData((prev) => ({ ...prev, address: text }))}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Closest Intersection"
+              value={manualLocationData.intersection}
+              onChangeText={(text) => setManualLocationData((prev) => ({ ...prev, intersection: text }))}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Postal Code"
+              value={manualLocationData.postalCode}
+              onChangeText={(text) => setManualLocationData((prev) => ({ ...prev, postalCode: text }))}
+            />
+
+            <Button label="Submit Manual Location" theme="primary" onPress={handleManualLocationSubmit} />
+          </View>
+        )}
+
+        {/* Hyperlink to view location form */}
+        {location.latitude && location.longitude && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('LocationForm', { location })}
+          >
+            <Text style={styles.hyperlinkText}>View/Edit Location</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* spacing element */}
+        {/* eslint-disable-next-line react-native/no-inline-styles */}
+        <View style={{ height: 10 }} />
         <Button
           label="Submit"
           theme="primary"

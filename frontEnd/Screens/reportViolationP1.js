@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, ToastAndroid, ScrollView } from 'react-native';
+import { View, Text, TextInput, ToastAndroid, ScrollView, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import styles from '../Styles/reportViolationP1-Styles.js';
 import Button from '../Components/ButtonPress.js'; // Import button
 
-export default function ReportViolationP1({ onNext }) {
+export default function ReportViolationP1({ navigation }) {
     // State variables to hold the keywords input from the user & to store the processed result returned from backend
     const [keywords, setKeywords] = useState('');
     const [resultFromBackend, setResultFromBackend] = useState(null);
@@ -64,7 +64,7 @@ export default function ReportViolationP1({ onNext }) {
             <Button label="Search Violations" theme="primary" onPress={handleSearch} />
 
             {loading && (
-                <Text style={styles.loadingText}>Searching... Please wait.</Text>
+                <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
             )}
 
             {resultFromBackend ? (
@@ -108,8 +108,7 @@ export default function ReportViolationP1({ onNext }) {
             <Button
                 label="Next"
                 theme="primary"
-                //onPress={() => navigation.navigate('ReportViolationP2')}
-                onPress={onNext}
+                onPress={() => navigation.navigate('ReportViolationP2')} // Navigate to ReportViolationP2
             />
         </ScrollView>
     );

@@ -126,6 +126,16 @@ const styles = StyleSheet.create({
   mediaPreviewContainer: {
     marginVertical: 20,
   },
+  loadingIndicator: {
+    marginVertical: 20,
+  },
+  hyperlinkText: {
+    color: 'blue',
+    textDecorationLine: 'underline',
+    fontWeight: 'bold',
+    marginTop: 10,
+    textAlign: 'center',
+  },
 });
 
 export default styles;
