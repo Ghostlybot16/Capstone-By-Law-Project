@@ -11,6 +11,9 @@
     <!-- Permission to allow user to access their camera to take images/videos -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Permission to allow user to access GPS and Location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
