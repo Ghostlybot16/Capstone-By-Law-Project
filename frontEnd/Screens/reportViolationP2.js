@@ -1,8 +1,7 @@
 import React, { useState, useEffect }from 'react';
 import { View, Text, TextInput, ScrollView, ToastAndroid, Image, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
-import ImagePicker from 'react-native-image-crop-picker';
-import Geolocation from '@react-native-community/geolocation';
-import { requestGalleryPermission, requestCameraPermission, requestLocationPermission } from '../utils/appPermissions.js';
+import { openCamera, openGallery } from '../utils/cameraGalleryUtils.js';
+import { handleAddLocation, handleManualLocationSubmit } from '../utils/locationUtils.js';
 import styles from '../Styles/reportViolationP2-Styles.js';
 import Button from '../Components/ButtonPress.js';
 
@@ -11,65 +10,6 @@ export default function ReportViolationP2({ navigation }) {
   // Declare a state variable 'mediaFiles' to store the list of uploaded images or videos
   // 'setMediaFiles' is the function used to update the state
   const [mediaFiles, setMediaFiles] = useState([]);
-
-  // Open Gallery
-  const openGallery = async () => {
-
-    // Check if the user has permissions to access the gallery
-    const hasPermission = await requestGalleryPermission();
-    if (!hasPermission) {
-      ToastAndroid.show('Gallery Permission Denied', ToastAndroid.SHORT);
-      return;
-    }
-
-    try {
-      const images = await ImagePicker.openPicker({
-        multiple: true, // Allow selection of multiple images
-        mediaType: 'any', // Allow both photos and videos
-      });
-      const formattedFiles = images.map((image) => ({
-        uri: image.path,
-        type: image.mime,
-        name: image.filename || `image-${Date.now()}`,
-      }));
-      setMediaFiles((prevFiles) => {
-        const existingUris = prevFiles.map(file => file.uri);
-        const newFiles = formattedFiles.filter(file => !existingUris.includes(file.uri));
-        return [...prevFiles, ...newFiles];
-      });
-    } catch (err) {
-      console.log('Error or User Cancelled: ', err);
-    }
-  };
-
-  // Open Camera
-  const openCamera = async () => {
-
-    // Check if the user has permissions to access the camera
-    const hasPermission = await requestCameraPermission();
-    if (!hasPermission) {
-      ToastAndroid.show('Camera Permission Denied', ToastAndroid.SHORT);
-      return;
-    }
-
-    try {
-      const image = await ImagePicker.openCamera({
-        mediaType: 'mixed', // Allow both image and video capture
-        cropping: false, // Disable cropping
-      });
-      const formattedFile = {
-        uri: image.path,
-        type: image.mime,
-        name: image.filename || `image-${Date.now()}`,
-      };
-      setMediaFiles((prevFiles) => {
-        const existingUris = prevFiles.map(file => file.uri);
-        return existingUris.includes(formattedFile.uri) ? prevFiles : [...prevFiles, formattedFile];
-      });
-    } catch (err) {
-      console.log('Error or User Cancelled: ', err);
-    }
-  };
 
   // Remove a selected image
   const removeImage = (uri) => {
@@ -96,54 +36,6 @@ export default function ReportViolationP2({ navigation }) {
       return unsubscribe;
   }, [navigation]);
 
-  // Function to handle location fetching
-  const handleAddLocation = async () => {
-    setLoading(true); // show loading indicator
-    const hasPermission = await requestLocationPermission();
-    if (!hasPermission) {
-      ToastAndroid.show('Location Permission Denied', ToastAndroid.SHORT);
-      setManualLocation(true); // Enable manual location entry if permission denied
-      setLoading(false); // Hide loading indicator
-      return;
-    }
-
-    // Fetch GPS location
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setLocation({
-          latitude: latitude.toFixed(6), // Limit accuracy for better readability
-          longitude: longitude.toFixed(6),
-        });
-        ToastAndroid.show('Location Added Successfully.', ToastAndroid.SHORT);
-        setManualLocation(false); // No need for manual location entry if location fetch is successful
-        setLoading(false); // Hide loading indicator
-      },
-
-      // Error case
-      (error) => {
-        console.error('Error fetching location:', error);
-        ToastAndroid.show('Unable to fetch location data. Please enter manually.', ToastAndroid.SHORT);
-        setManualLocation(true); // Enabled for manual entry upon error
-        setLoading(false);
-      },
-      { enableHighAccuracy: true, // Enable high accuracy mode
-        timeout: 20000, // 20 seconds timeout
-        maximumAge: 0,
-      }
-    );
-  };
-
-  const handleManualLocationSubmit = () => {
-    if (!manualLocationData.address.trim() || !manualLocationData.postalCode.trim() || !manualLocationData.intersection.trim()) {
-      ToastAndroid.show('All fields are required for manual location entry.', ToastAndroid.SHORT);
-      return;
-    }
-    setLocation({ ...manualLocationData });
-    ToastAndroid.show('Manual Location Address Successfully.', ToastAndroid.SHORT);
-    setManualLocation(false); // Exit manual location mode after submission
-  };
-
   const handleSubmit = () => {
 
     // Check if atleast one media file is uploaded
@@ -162,6 +54,9 @@ export default function ReportViolationP2({ navigation }) {
     ToastAndroid.show('Report Submitted', ToastAndroid.SHORT);
     console.log('Report Submitted', mediaFiles); // Log message for debugging
   };
+
+
+
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -201,13 +96,13 @@ export default function ReportViolationP2({ navigation }) {
 
             <View style={styles.imageContainer}>
               {/* Uploaded Image */}
-            <Image source={{ uri: item.uri }} style={styles.uploadedImage} />
+              <Image source={{ uri: item.uri }} style={styles.uploadedImage} />
 
-             {/* Remove button */}
-            <TouchableOpacity
-              style={styles.removeButtonContainer}
-              onPress={() => removeImage(item.uri)}
-              >
+              {/* Remove button */}
+              <TouchableOpacity
+                style={styles.removeButtonContainer}
+                onPress={() => removeImage(item.uri)}>
+
                 <Text style={styles.removeButtonText}>X</Text>
               </TouchableOpacity>
             </View>
@@ -223,19 +118,19 @@ export default function ReportViolationP2({ navigation }) {
         <Button
           label="Upload Images"
           theme="primary"
-          onPress={openGallery}
+          onPress={() => openGallery(setMediaFiles)}
         />
         <Button
           label="Open Camera"
           theme="primary"
-          onPress={openCamera}
+          onPress={() => openCamera(setMediaFiles)}
         />
 
       {/* Add Location Button */}
         <Button
           label="Add Location"
           theme="primary"
-          onPress={handleAddLocation}
+          onPress={() => handleAddLocation(setLocation, setManualLocation, setLoading)}
         />
 
         {/* Loading indicator */}

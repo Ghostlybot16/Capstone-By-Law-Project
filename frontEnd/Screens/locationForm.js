@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ToastAndroid, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, ToastAndroid } from 'react-native';
 import styles from '../Styles/locationFormStyles.js';
 
 export default function LocationForm({ route, navigation }) {
