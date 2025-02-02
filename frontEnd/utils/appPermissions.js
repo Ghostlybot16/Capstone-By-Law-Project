@@ -1,4 +1,4 @@
-import { PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform, ToastAndroid, Linking } from 'react-native';
 
 // Constants for permissions and dialog messages
 const PERMISSIONS = {
@@ -28,24 +28,54 @@ export const requestGalleryPermission = async () => {
         return true; // iOS automatically grants permissions
     }
 
-    try {
-        const granted = await PermissionsAndroid.request(
-            PERMISSIONS.READ_EXTERNAL_STORAGE,
+    const sdkVersion = Platform.constants.Release; // Get android version
+
+    // If Android 11 and above
+    if(parseInt(sdkVersion, 10) >= 30) {
+        try {
+            const managePermission = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.MANAGE_EXTERNAL_STORAGE,
+                {
+                    title: 'Manage External Storage Permission',
+                    message: 'This app needs access to manage storage to select files.',
+                    buttonNeutral: 'Ask Me Later',
+                    buttonNegative: 'Cancel',
+                    buttonPositive: 'OK',
+                }
+            );
+
+            if (managePermission === PermissionsAndroid.RESULTS.GRANTED) {
+                return true;
+            } else {
+                ToastAndroid.show(
+                    'Permission denied. Go to settings to enable it manually.',
+                    ToastAndroid.SHORT
+                );
+                Linking.openSettings(); // Direct user to settings app
+                return false;
+            }
+        } catch (err) {
+            console.warn('Manage Storage Permission Error:', err);
+            return false;
+        }
+    } else { // For Android 10 and below
+        return PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
             {
-                title: MESSAGES.READ_EXTERNAL_STORAGE.title,
-                message: MESSAGES.READ_EXTERNAL_STORAGE.message,
+                title: 'Gallery Access Permission',
+                message: 'This app needs access to your gallery to upload images.',
                 buttonNeutral: 'Ask Me Later',
                 buttonNegative: 'Cancel',
                 buttonPositive: 'OK',
             }
-        );
-
-        console.log('Gallery Permission Granted:', granted === PermissionsAndroid.RESULTS.GRANTED);
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-    } catch (err) {
-        console.warn('Gallery Permission Error', err);
-        return false;
+        )
+            .then((result) => result === PermissionsAndroid.RESULTS.GRANTED)
+            .catch((err) => {
+                console.warn('Gallery Permission Error:', err);
+                return false;
+            });
     }
+
 };
 
 // Request Camera Permission
@@ -77,7 +107,7 @@ export const requestCameraPermission = async () => {
 // Request Location Permission
 export const requestLocationPermission = async () => {
     if (Platform.OS !== 'android') {
-        return true; 
+        return true;
     }
 
     try {
